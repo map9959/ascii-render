@@ -24,9 +24,9 @@ int main(int argc, char *argv[]){
 
     double theta = 0;
     double tilt = -2.1;
-    while(theta < 25){
-        vec3 Lloc = {cos(tilt)*cos(theta)*1.7, -sin(tilt)*cos(theta)*1.7, sin(theta)*1.7};
-        //vec3 Lloc = {0, 0, 1};
+    while(theta < 12.5){
+        vec3 Lloc = {cos(tilt)*cos(theta), -sin(tilt)*cos(theta), sin(theta)};
+        vec_mul(&Lloc, 2.1);
         vec3 Ldir = Lloc;
         normalize(&Ldir);
 
@@ -51,8 +51,14 @@ int main(int argc, char *argv[]){
                     double l_dist = dot(l_dist_metric, l_dist_metric);
 
                     double diffuse = (dot(N, Ldir) > 0) ? dot(N, Ldir) * (1/l_dist) : 0;
+                    vec3 Rm = N;
+                    vec_mul(&Rm, 2*dot(Rm, Ldir));
+                    vec_sub(&Rm, Ldir);
+                    double shine = 100;
+                    double specular = pow(-dot(Rm, W), shine);
+                    specular = (specular > 0) ? specular : 0;
 
-                    double t_light = diffuse + ambient;
+                    double t_light = ambient + diffuse + diffuse * specular;
                     int light = (t_light > 1) ? 9 : (int)(t_light * 10);
                     screen[i][j] = grad[light];
                 }
@@ -66,7 +72,7 @@ int main(int argc, char *argv[]){
             printf("\n");
         }
 
-        int ms = 20000;
+        int ms = 40000;
         clock_t start_time = clock();
         while(clock() < start_time + ms);
 
