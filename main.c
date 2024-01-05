@@ -35,7 +35,7 @@ int main(int argc, char *argv[]){
     double theta = 0;
     double tilt = -2.1;
     while(theta < 12.5){
-        vec3 Lloc = {cos(tilt)*cos(theta), -sin(tilt)*cos(theta), sin(theta)};
+        vec3 Lloc = {sin(tilt)*cos(theta), sin(tilt)*cos(theta), sin(theta)};
         vec_mul(&Lloc, 1.1);
 
         vec3 s1c = {sin(tilt)*cos(theta*0.3)*0.6, cos(theta*0.3)*sin(tilt), sin(theta*0.3)*0.6};
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
                 double normY = (i/(double)h)*2-1;
                 double fl = 1.2;
                 vec3 V = {0, 0, fl};
-                vec3 W = {normX*fl, normY*fl, -fl};
+                vec3 W = {normX, normY, -fl};
                 normalize(&W);
 
                 double min_t = 10000;
@@ -63,18 +63,17 @@ int main(int argc, char *argv[]){
                         double ambient = 0.1;
                         double t_light = ambient;
 
-                        vec3 l_dist_metric = {S.x-Lloc.x, S.y-Lloc.y, S.z-Lloc.z};
-                        double l_dist = dot(l_dist_metric, l_dist_metric);
+                        vec3 l_dist_metric = {Lloc.x-S.x, Lloc.y-S.y, Lloc.z-S.z};
+                        //double l_dist = dot(l_dist_metric, l_dist_metric);
+                        double l_dist = 3;
                         vec3 Ldir = l_dist_metric;
                         normalize(&Ldir);
 
                         double shadow_t = -1;
+                        vec3 S_prime = {S.x+0.001*Ldir.x, S.y+0.001*Ldir.y, S.z+0.001*Ldir.z};
                         for(int s2 = 0; s2 < 2; s2++){
-                            if(s == s2){
-                                continue;
-                            }
-                            shadow_t = rt_sphere(spheres[s2].center, spheres[s2].radius, S, Ldir);
-                            if(shadow_t > 0){
+                            shadow_t = rt_sphere(spheres[s2].center, spheres[s2].radius, S_prime, Ldir);
+                            if(shadow_t >= 0){
                                 break;
                             }
                         }
@@ -86,7 +85,7 @@ int main(int argc, char *argv[]){
                             vec3 Rm = N;
                             vec_mul(&Rm, 2*dot(Rm, Ldir));
                             vec_sub(&Rm, Ldir);
-                            double shine = 25;
+                            double shine = 300;
                             double specular = pow(-dot(Rm, W), shine);
                             specular = (specular > 0) ? specular : 0;
 
