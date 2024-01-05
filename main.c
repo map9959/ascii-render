@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "vec3.h"
 
 double rt_sphere(vec3 center, double r, vec3 origin, vec3 dir){
@@ -19,44 +20,58 @@ int main(int argc, char *argv[]){
     char screen[h][w];
 
     vec3 sph = {0, 0, 0};
-    vec3 Lloc = {1, 1, 1};
-    vec3 Ldir = Lloc;
-    normalize(&Ldir);
     double r = 0.7;
 
-    for(int i = 0; i < h; i++){
-        for(int j = 0; j < w; j++){
-            screen[i][j] = ' ';
-            double normX = (j/(double)w)*2-1;
-            double normY = (i/(double)h)*2-1;
-            double fl = 3;
-            vec3 V = {0, 0, fl};
-            vec3 W = {normX, normY, -fl};
-            normalize(&W);
-            if(rt_sphere(sph, r, V, W) > 0){
-                double t = rt_sphere(sph, r, V, W);
-                vec3 S = {V.x+t*W.x, V.y+t*W.y, V.z+t*W.z};
-                vec3 N = {S.x-sph.x, S.y-sph.y, S.z-sph.z};
-                normalize(&N);
+    double theta = 0;
+    double tilt = -2.1;
+    while(theta < 25){
+        vec3 Lloc = {cos(tilt)*cos(theta)*1.7, -sin(tilt)*cos(theta)*1.7, sin(theta)*1.7};
+        //vec3 Lloc = {0, 0, 1};
+        vec3 Ldir = Lloc;
+        normalize(&Ldir);
 
-                double ambient = 0.1;
+        for(int i = 0; i < h; i++){
+            for(int j = 0; j < w; j++){
+                screen[i][j] = ' ';
+                double normX = (j/(double)w)*2-1;
+                double normY = (i/(double)h)*2-1;
+                double fl = 3;
+                vec3 V = {0, 0, fl};
+                vec3 W = {normX, normY, -fl};
+                normalize(&W);
+                if(rt_sphere(sph, r, V, W) > 0){
+                    double t = rt_sphere(sph, r, V, W);
+                    vec3 S = {V.x+t*W.x, V.y+t*W.y, V.z+t*W.z};
+                    vec3 N = {S.x-sph.x, S.y-sph.y, S.z-sph.z};
+                    normalize(&N);
 
-                vec3 l_dist_metric = {S.x-Lloc.x, S.y-Lloc.y, S.z-Lloc.z};
-                double l_dist = dot(l_dist_metric, l_dist_metric);
+                    double ambient = 0.1;
 
-                double diffuse = (dot(N, Ldir) > 0) ? dot(N, Ldir) * (1/l_dist) : 0;
+                    vec3 l_dist_metric = {S.x-Lloc.x, S.y-Lloc.y, S.z-Lloc.z};
+                    double l_dist = dot(l_dist_metric, l_dist_metric);
 
-                double t_light = diffuse + ambient;
-                int light = (t_light > 1) ? 9 : (int)(t_light * 10);
-                screen[i][j] = grad[light];
+                    double diffuse = (dot(N, Ldir) > 0) ? dot(N, Ldir) * (1/l_dist) : 0;
+
+                    double t_light = diffuse + ambient;
+                    int light = (t_light > 1) ? 9 : (int)(t_light * 10);
+                    screen[i][j] = grad[light];
+                }
             }
         }
-    }
 
-    for(int i = 0; i < h; i++){
-        for(int j = 0; j < w; j++){
-            printf("%c", screen[i][j]);
+        for(int i = 0; i < h; i++){
+            for(int j = 0; j < w; j++){
+                printf("%c", screen[i][j]);
+            }
+            printf("\n");
         }
-        printf("\n");
+
+        int ms = 20000;
+        clock_t start_time = clock();
+        while(clock() < start_time + ms);
+
+        printf("\e[1;1H\e[2J");
+
+        theta += 0.1;
     }
 }
