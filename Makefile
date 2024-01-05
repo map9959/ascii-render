@@ -3,3 +3,6 @@ sphere: main.c
 
 run: sphere
 	./sphere
+
+clean:
+	rm sphere
