@@ -1,8 +1,8 @@
-sphere: main.c
-	gcc -o sphere vec3.c main.c -lm
+render: main.c
+	gcc -o render vec3.c main.c -lm
 
-run: sphere
-	./sphere
+run: render
+	./render
 
 clean:
-	rm sphere
+	rm render
