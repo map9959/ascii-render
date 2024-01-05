@@ -1,5 +1,5 @@
 sphere: main.c
-	gcc -o sphere main.c -lm
+	gcc -o sphere vec3.c main.c -lm
 
 run: sphere
 	./sphere

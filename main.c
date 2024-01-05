@@ -1,20 +1,6 @@
-#include "stdio.h"
-#include "math.h"
+#include <stdio.h>
+#include "vec3.h"
 
-typedef struct vec3{
-    double x;
-    double y;
-    double z;
-} vec3;
-double dot(vec3 v1, vec3 v2){
-    return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;
-}
-void normalize(vec3 *n){
-    double norm = sqrt(dot(*n, *n));
-    n->x /= norm;
-    n->y /= norm;
-    n->z /= norm;
-}
 double rt_sphere(vec3 center, double r, vec3 origin, vec3 dir){
     vec3 Vp = {origin.x-center.x, origin.y-center.y, origin.z-center.z};
     double B = dot(Vp, dir);
@@ -52,10 +38,14 @@ int main(int argc, char *argv[]){
                 vec3 S = {V.x+t*W.x, V.y+t*W.y, V.z+t*W.z};
                 vec3 N = {S.x-sph.x, S.y-sph.y, S.z-sph.z};
                 normalize(&N);
+
                 double ambient = 0.1;
+
                 vec3 l_dist_metric = {S.x-Lloc.x, S.y-Lloc.y, S.z-Lloc.z};
                 double l_dist = dot(l_dist_metric, l_dist_metric);
+
                 double diffuse = (dot(N, Ldir) > 0) ? dot(N, Ldir) * (1/l_dist) : 0;
+
                 double t_light = diffuse + ambient;
                 int light = (t_light > 1) ? 9 : (int)(t_light * 10);
                 screen[i][j] = grad[light];
